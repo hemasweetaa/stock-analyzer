@@ -69,7 +69,6 @@ function App() {
     ],
   });
 
-  // For final score speedometer
   const getGaugeData = (score) => ({
     labels: ["Score", "Remaining"],
     datasets: [
@@ -80,11 +79,6 @@ function App() {
       },
     ],
   });
-
-  // Function to return "Good" or "Bad" based on the score
-  const getSummary = (score) => {
-      return score >= 70 ? "Good" : "Bad";
-  };
 
   const gaugeOptions = {
     rotation: -90,
@@ -219,7 +213,7 @@ function App() {
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
             gap: "40px",
-            maxWidth: "1100px",
+            maxWidth: "900px", // REDUCED MAX WIDTH FOR OVERALL BETTER FIT
             margin: "20px auto",
           }}
         >
@@ -311,7 +305,7 @@ function App() {
             </div>
           )}
 
-          {/* Horizontal Bar Chart (Full Width) */}
+          {/* Horizontal Bar Chart (Reduced Width) */}
           <div
             style={{
               backgroundColor: "white",
@@ -320,20 +314,32 @@ function App() {
               boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
               height: "300px",
               gridColumn: "1 / -1",
+              display: "flex", // Enable flex to center content
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             <h3 style={{ textAlign: "center", fontWeight: "bold", marginBottom: "10px" }}>
               Overlapping Fund Values
             </h3>
-            <Bar
-              data={getPieData(selectedCustomer.fundOverlap, ["#60a5fa"])}
-              options={{
-                indexAxis: "y",
-                plugins: { legend: { display: false } },
-                maintainAspectRatio: false,
-                responsive: true,
+            <div 
+              style={{
+                width: "80%", // REDUCED WIDTH for bar chart
+                height: "calc(100% - 40px)", // Allocate remaining space for chart
+                margin: "0 auto", // Center the inner chart container
               }}
-            />
+            >
+              <Bar
+                data={getPieData(selectedCustomer.fundOverlap, ["#60a5fa"])}
+                options={{
+                  indexAxis: "y",
+                  plugins: { legend: { display: false } },
+                  maintainAspectRatio: false,
+                  responsive: true,
+                }}
+              />
+            </div>
           </div>
 
           {/* Final Score Gauge (Full Width) */}
@@ -345,32 +351,36 @@ function App() {
               boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
               textAlign: "center",
               gridColumn: "1 / -1",
-              height: "150px", 
+              display: "flex", 
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             <h3 style={{ fontWeight: "bold", marginBottom: "5px" }}>Final Score</h3>
             
-            {/* Summary Text */}
-            <p style={{ 
-                fontWeight: "bold", 
-                fontSize: "1.5rem",
-                color: getSummary(selectedCustomer.finalScore) === "Good" ? "#10b981" : "#dc3545",
-                marginBottom: "10px",
-            }}>
-              {getSummary(selectedCustomer.finalScore)}!
-            </p>
+            <div style={{ width: "200px", height: "100px", margin: "0 auto", position: "relative" }}>
+                <Doughnut
+                    data={getGaugeData(selectedCustomer.finalScore)}
+                    options={gaugeOptions}
+                />
+                <p style={{ 
+                    position: "absolute", 
+                    bottom: "0", 
+                    left: "50%", 
+                    transform: "translateX(-50%)", 
+                    fontWeight: "bold", 
+                    fontSize: "1.2rem",
+                    color: "#222"
+                }}>
+                    {selectedCustomer.finalScore.toFixed(2)}
+                </p>
+            </div>
             
-            <Doughnut
-              data={getGaugeData(selectedCustomer.finalScore)}
-              options={gaugeOptions}
-            />
-            <p style={{ marginTop: "10px", fontWeight: "bold", fontSize: "1.2rem" }}>
-              {selectedCustomer.finalScore.toFixed(2)}
-            </p>
             <button
               onClick={() => setSelectedCustomer(null)}
               style={{
-                marginTop: "10px",
+                marginTop: "15px", 
                 padding: "8px 20px",
                 borderRadius: "15px",
                 border: "none",

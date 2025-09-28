@@ -2,6 +2,14 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import json
 
+import os
+from mistralai import Mistral
+
+api_key = "OdiZyl1L89SipmYTIcBlV68RrC1kxvgV"
+model = "mistral-large-latest"
+
+client = Mistral(api_key=api_key)
+
 app = Flask(__name__)
 CORS(app)  # allow frontend to call backend
 
@@ -54,6 +62,9 @@ def evaluate_company(symbol):
     stock = next((s for s in stock_data if s["stockSymbol"] == symbol), None)
     if not stock:
         return jsonify({"error": "Stock not found"}), 404
+    
+
+    
 
     feedback = generate_feedback(stock["parameters"])
     summary = (
@@ -63,7 +74,18 @@ def evaluate_company(symbol):
         "suggesting a stable financial position."
     )
 
-    return jsonify({"stockSymbol": symbol, "feedback": feedback, "summary": summary})
+    chat_response = client.chat.complete(
+    model= model,
+    messages = [
+        {
+            "role": "user",
+            "content": f"Provide a concise summary of the following financial analysis feedback for a stock: with params ['priceEarningsRatio'] ['priceperShare'] ['dividendYield'] ['debttor'] for each parameter:",
+        },
+    ]
+)
+#print(chat_response.choices[0].message.content),
+
+    return jsonify({"stockSymbol": symbol, "feedback": feedback, "summary": chat_response.choices[0].message.content})
 
 @app.route("/")
 def index():
